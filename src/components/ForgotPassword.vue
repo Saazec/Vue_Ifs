@@ -1,0 +1,39 @@
+<template>
+    <div class="container h-100 bg-grey"
+     style="margin-top:15%;">
+  <div class="row h-100 justify-content-center align-items-center">
+    <form class="col-md-4">
+      <h6 class="text-center"
+          style="padding-bottom: 50px;">Forgot Password</h6>
+      <div class="form-group">
+        <label for="registeredEmail">Enter Email ID</label>
+        <input type="email"
+               class="form-control"
+               id="registeredEmail"
+               name="registeredEmail"
+               placeholder="abc@example.com"
+               required="true">
+        <span class="error-message">Invalid Email ID</span>
+        <span class="success-message"
+              style="color: green;">A reset link has been sent to you.</span>
+      </div>
+
+      <div class="row d-flex justify-content-end margin-0 margin-t-5 ">
+        <button type="submit"
+                        class="btn btn-danger capsule-btn">Send Recovery Email</button>
+      </div>
+    </form>
+  </div>
+</div>
+</template>
+
+<script>
+export default {
+    name: 'ForgotPassword',
+}
+</script>
+
+<style>
+
+</style>
+
