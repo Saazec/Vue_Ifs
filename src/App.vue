@@ -10,7 +10,7 @@
         <router-link :to="{name: 'Home'}" exact>
           <img src="./assets/logo.png" alt="" srcset="">
         </router-link>
-        <ul class="nav justify-content-end">
+        <ul class="nav justify-content-end" v-if="loggedInStatus">
             <li class="nav-item">
               <a class="nav-link active">Home</a>
             </li>
@@ -28,7 +28,7 @@
               </select>
             </li>
             <li class="nav-item">
-              <button type="button"  class="btn btn-sm btn-danger capsule-btn margin-l-20">Logout &gt;</button>
+              <button type="button" @click="logout()" class="btn btn-sm btn-danger capsule-btn margin-l-20">Logout &gt;</button>
             </li>
           </ul>
       </nav>
@@ -41,7 +41,7 @@
       
       <!-- <router-outlet></router-outlet> -->
 
-      <router-view />
+      <router-view @isAuthenticated="status => loggedInStatus = status" />
 
 
       <!-- <login-form *ngIf="!loggedInStatus"></login-form>
@@ -65,6 +65,17 @@
 export default {
   name: 'app',
   components: {
+  },
+  data() {
+    return {
+      loggedInStatus: false
+    }
+  },
+  methods: {
+    logout() {
+      this.loggedInStatus = false;
+      this.$router.push({name: 'Home'});
+    }
   }
 }
 </script>

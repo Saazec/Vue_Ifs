@@ -3,6 +3,7 @@
         <h4>
   Enterprise Search
 </h4>
+<hr>
 <nav>
   <div class="nav"
        id="nav-tab"

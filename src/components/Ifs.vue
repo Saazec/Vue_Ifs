@@ -10,7 +10,9 @@
               type="date"
               name="ifsStartDate"
               id="ifsStartDate"
+              v-model="dateToSearch"
               onkeydown="return false"
+              @change="searchByDate(dateToSearch)"
             >
           </div>
 
@@ -19,6 +21,7 @@
             <input
               class="form-control form-control-sm"
               type="text"
+              v-model="sourceToSearch"
               name="ifsSearchCategory"
               id="ifsSearchCategory"
               placeholder="source"
@@ -26,12 +29,16 @@
           </div>
 
           <div class="form-group margin-l-20 search-btn">
-            <button type="button" class="btn btn-danger capsule-btn">Search</button>
+            <button
+              type="button"
+              @click="searchBySource(sourceToSearch)"
+              class="btn btn-danger capsule-btn"
+            >Search</button>
           </div>
         </div>
       </div>
     </div>
-    <form name="form">
+    <form @submit.prevent="handleSubmit">
       <table class="table table-sm">
         <tr>
           <td>
@@ -39,13 +46,19 @@
               <label for="caseNo">Case</label>
               <span class="mandatory-field">*</span>
               <input
+                v-model="ifsForm.caseNo"
+                v-validate="'required'"
                 class="form-control form-control-sm"
                 type="number"
                 placeholder="case"
                 name="caseNo"
+                :class="{ 'is-invalid': submitted && errors.has('caseNo') }"
                 id="caseNo"
-                required
               >
+              <div
+                v-if="submitted && errors.has('caseNo')"
+                class="invalid-feedback"
+              >{{ errors.first('caseNo') }}</div>
               <!-- <div class="invalid-feedback">
             Case is required
               </div>-->
@@ -56,13 +69,19 @@
               <label for="caseNumber">Case Number</label>
               <span class="mandatory-field">*</span>
               <input
+                v-model="ifsForm.caseNumber"
+                v-validate="'required'"
                 class="form-control form-control-sm"
+                :class="{ 'is-invalid': submitted && errors.has('caseNumber') }"
                 type="number"
                 placeholder="Case Number"
                 name="caseNumber"
                 id="caseNumber"
-                required
               >
+              <div
+                v-if="submitted && errors.has('caseNumber')"
+                class="invalid-feedback"
+              >{{ errors.first('caseNumber') }}</div>
               <!-- <div class="invalid-feedback">
             Case Number is required
               </div>-->
@@ -73,13 +92,19 @@
               <label for="source">Source</label>
               <span class="mandatory-field">*</span>
               <input
+                v-model="ifsForm.source"
+                v-validate="'required'"
                 class="form-control form-control-sm"
                 type="text"
                 name="source"
-                placeholder="Phone / WhatsApp"
+                :class="{ 'is-invalid': submitted && errors.has('source') }"
+                placeholder="Phone/WhatsApp"
                 id="source"
-                required
               >
+              <div
+                v-if="submitted && errors.has('source')"
+                class="invalid-feedback"
+              >{{ errors.first('source') }}</div>
               <!-- <div class="invalid-feedback">
             Source is required
               </div>-->
@@ -90,13 +115,19 @@
               <label for="feedbackType">Feedback Type</label>
               <span class="mandatory-field">*</span>
               <input
+                v-model="ifsForm.feedbackType"
+                v-validate="'required'"
                 class="form-control form-control-sm"
                 type="text"
+                :class="{ 'is-invalid': submitted && errors.has('feedbackType') }"
                 placeholder="Compliment"
                 name="feedbackType"
                 id="feedbackType"
-                required
               >
+              <div
+                v-if="submitted && errors.has('feedbackType')"
+                class="invalid-feedback"
+              >{{ errors.first('feedbackType') }}</div>
               <!-- <div class="invalid-feedback">
             Feedback Type is required
               </div>-->
@@ -107,13 +138,19 @@
               <label for="division">Division</label>
               <span class="mandatory-field">*</span>
               <input
+                v-model="ifsForm.division"
+                v-validate="'required'"
                 class="form-control form-control-sm"
                 type="text"
                 placeholder="LRT-BP"
+                :class="{ 'is-invalid': submitted && errors.has('division') }"
                 name="division"
                 id="division"
-                required
               >
+              <div
+                v-if="submitted && errors.has('division')"
+                class="invalid-feedback"
+              >{{ errors.first('division') }}</div>
               <!-- <div class="invalid-feedback">
             Division is required
               </div>-->
@@ -124,13 +161,19 @@
               <label for="incidentDate">Incident Date</label>
               <span class="mandatory-field">*</span>
               <input
+                v-model="ifsForm.incidentDate"
+                v-validate="'required'"
                 class="form-control form-control-sm"
                 type="date"
+                :class="{ 'is-invalid': submitted && errors.has('incidentDate') }"
                 name="incidentDate"
                 id="incidentDate"
-                required
                 onkeydown="return false"
               >
+              <div
+                v-if="submitted && errors.has('incidentDate')"
+                class="invalid-feedback"
+              >{{ errors.first('incidentDate') }}</div>
               <!-- <div class="invalid-feedback">
             Incident Date is required
               </div>-->
@@ -144,13 +187,24 @@
               <label for="createdOn">Created On</label>
               <span class="mandatory-field">*</span>
               <input
+                v-model="ifsForm.createdOn"
+                v-validate="'required'"
                 class="form-control form-control-sm"
                 type="date"
+                :class="{ 'is-invalid': submitted && errors.has('createdOn') }"
                 name="createdOn"
                 id="createdOn"
-                required
+                @change="validateDate()"
                 onkeydown="return false"
               >
+              <div
+                v-if="submitted && errors.has('createdOn')"
+                class="invalid-feedback"
+              >{{ errors.first('createdOn') }}</div>
+              <div
+                v-if="errorInDate"
+                class="error-message"
+              >created date should be lesser than reported date</div>
               <!-- <div class="invalid-feedback"
                *ngIf="f.submitted && createdOn.invalid">
             <div *ngIf="createdOn.errors.required">
@@ -168,13 +222,20 @@
               <label for="reportedDate">Reported Date</label>
               <span class="mandatory-field">*</span>
               <input
+                v-model="ifsForm.reportedDate"
+                v-validate="'required'"
                 class="form-control form-control-sm"
                 type="date"
                 name="reportedDate"
+                :class="{ 'is-invalid': submitted && errors.has('reportedDate') }"
                 id="reportedDate"
-                required
+                @change="validateDate()"
                 onkeydown="return false"
               >
+              <div
+                v-if="submitted && errors.has('reportedDate')"
+                class="invalid-feedback"
+              >{{ errors.first('reportedDate') }}</div>
               <!-- <div class="invalid-feedback">
             Reported Date is required
               </div>-->
@@ -279,7 +340,7 @@
             </div>
           </td>
           <td>
-            <div class="form-group">
+            <div class="form-group no-wrap">
               <label for="serviveNumber">Bus Service Number</label>
               <input
                 class="form-control form-control-sm"
@@ -314,7 +375,7 @@
           <td></td>
           <td class="d-flex justify-content-end">
             <div class="align-items-end justify-content-end">
-              <button type="submit" class="btn btn-danger capsule-btn add-btn">Add</button>
+              <button class="btn btn-danger capsule-btn add-btn">Add</button>
             </div>
           </td>
         </tr>
@@ -323,7 +384,7 @@
     <!-- <div class="d-flex justify-content-end">
   <pagination-controls (pageChange)="p = $event"></pagination-controls>
     </div>-->
-        <div class="row">
+    <div class="row">
       <div class="col-md-10"></div>
       <div class="col-md-2">
         <button @click="previousPage" class="btn btn-sm">&lt; Previous</button>
@@ -345,51 +406,67 @@
         </tr>
         <tr v-for="(record, index) in dataToShow" :key="index">
           <td style="white-space:nowrap;">
-                <font-awesome-icon icon="pencil-alt" @click="enableEdit(index)" />
-      <font-awesome-icon style="margin-left: 6px;"
-       icon="save" v-bind:class="{'save-disabled': index != selectedRow, 'save-enabled': index == selectedRow}" 
-       @click="saveData(record)"/>
+            <font-awesome-icon icon="pencil-alt" class="cursor-pointer" @click="enableEdit(index)"/>
+            <font-awesome-icon
+              style="margin-left: 6px;"
+              icon="save"
+              v-bind:class="{'save-disabled': index != selectedRow, 'save-enabled': index == selectedRow}"
+              @click="saveData(record)"
+            />
             <!-- <i class="fa fa-pencil fa-fw cursor-pointer" aria-hidden="true"></i>
-            <i class="fa fa-save fa-fw cursor-pointer" aria-hidden="true"></i> -->
+            <i class="fa fa-save fa-fw cursor-pointer" aria-hidden="true"></i>-->
           </td>
           <td>{{ record.caseNumber }}</td>
-           <td>
-            <input :class="{'input-disabled': index != selectedRow}"
+          <td>
+            <input
+              :class="{'input-disabled': index != selectedRow}"
               type="text"
               name="item.caseNumber+'feedbackType'"
               v-model="record.feedbackType"
             >
           </td>
-          
+
           <td>
-            <input :class="{'input-disabled': index != selectedRow}"
+            <input
+              :class="{'input-disabled': index != selectedRow}"
               type="text"
-              v-model="record.source">
+              v-model="record.source"
+            >
           </td>
           <td>
-            <input :class="{'input-disabled': index != selectedRow}"
+            <input
+              :class="{'input-disabled': index != selectedRow}"
               type="text"
-              v-model="record.division">
+              v-model="record.division"
+            >
           </td>
           <td>
-            <input :class="{'input-disabled': index != selectedRow}"
+            <input
+              :class="{'input-disabled': index != selectedRow}"
               type="text"
-              v-model="record.reportedDate">
+              v-model="record.reportedDate"
+            >
           </td>
           <td>
-            <input :class="{'input-disabled': index != selectedRow}"
+            <input
+              :class="{'input-disabled': index != selectedRow}"
               type="text"
-              v-model="record.createdOn">
+              v-model="record.createdOn"
+            >
           </td>
           <td>
-            <input :class="{'input-disabled': index != selectedRow}"
+            <input
+              :class="{'input-disabled': index != selectedRow}"
               type="text"
-              v-model="record.engineScore">
+              v-model="record.engineScore"
+            >
           </td>
           <td>
-            <input :class="{'input-disabled': index != selectedRow}"
+            <input
+              :class="{'input-disabled': index != selectedRow}"
               type="text"
-              v-model="record.lastSaved">
+              v-model="record.lastSaved"
+            >
           </td>
         </tr>
       </table>
@@ -398,29 +475,75 @@
 </template>
 
 <script>
-import ifsData from '../data/ifs.js';
+import ifsData from "../data/ifs.js";
 // import ifs from '../data/ifs.js';
 export default {
   name: "Ifs",
   props: {},
   data() {
-      return {
-          ifsData,
-          ifsRecords: [],
-          currentSort: 'sr',
-          currentSortDir: 'asc',
-          pageSize: 3,
-          currentPage: 1,
-          selectedRow: null,
-      };
+    return {
+      ifsData,
+      ifsRecords: [],
+      currentSort: "sr",
+      currentSortDir: "asc",
+      pageSize: 3,
+      currentPage: 1,
+      selectedRow: null,
+      ifsForm: {
+        caseNo: "",
+        caseNumber: "",
+        source: "",
+        feedbackType: "",
+        division: "",
+        reportedDate: "",
+        createdOn: "",
+        engineScore: "",
+        lastSaved: ""
+      },
+      errorInDate: false,
+      dateToSearch: "",
+      sourceToSearch: "",
+      submitted: false
+    };
   },
   created() {
     this.ifsRecords = this.ifsData.data;
   },
   methods: {
+    handleSubmit() {
+      this.submitted = true;
+      this.$validator.validate().then(valid => {
+        if (valid) {
+          if (
+            this._.findIndex(this.ifsRecords, {
+              caseNumber: this.ifsForm.caseNumber
+            }) > -1
+          ) {
+            this.ifsRecords.push(this.ifsForm);
+            this.$toasted.success("Record Inserted", {
+              action: {
+                text: "X",
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0);
+                }
+              }
+            });
+          } else {
+            this.$toasted.show("Record Already Exists", {
+              action: {
+                text: "X",
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0);
+                }
+              }
+            });
+          }
+        }
+      });
+    },
     sort: function(s) {
       if (s === this.currentSort) {
-        this.currentSortDir === 'asc' ? 'desc' : 'asc';
+        this.currentSortDir === "asc" ? "desc" : "asc";
       }
       this.currentSort = s;
     },
@@ -436,15 +559,46 @@ export default {
       this.selectedRow = index;
     },
     saveData: function(formData) {
-      this.selectedRow = null;
-    }
+      let _index = this._.findIndex(this.ifsRecords, {
+        caseNumber: formData.caseNumber
+      });
+      if (_index > -1) {
+        this._.assign(this.ifsRecords[_index], formData);
+        this.selectedRow = null;
+        this.$toasted.success("Record updated successfully", {});
+      }
+    },
+    searchByDate(param) {
+      param = param.split("-");
+      let _filteredDate = param[2] + "/" + param[1] + "/" + param[0];
+      this.ifsRecords = this._.filter(this.ifsRecords, {
+        reportedDate: _filteredDate
+      });
+    },
+    searchBySource(source) {
+      source = source.toLowerCase();
+      this.ifsRecords = this._.filter(this.ifsRecords, { source: source });
+    },
+    validateDate() {
+      if (this.ifsForm.createdOn && this.ifsForm.reportedDate) {
+        this.errorInDate = false;
+        let createdDate = this.ifsForm.createdOn.split('-');
+        let reportedDate = this.ifsForm.reportedDate.split('-');
+        if (+createdDate[0] > +reportedDate[0]) this.errorInDate = true;
+        if (+createdDate[1] > +reportedDate[1]) this.errorInDate = true;
+        if (+createdDate[2] >= +reportedDate[2]) this.errorInDate = true;
+      } else {
+        this.errorInDate = false;
+      }
+    }, 
   },
   computed: {
     dataToShow: function() {
-      return this.ifsRecords.slice()
+      return this.ifsRecords
+        .slice()
         .sort((a, b) => {
           let modifier = 1;
-          if (this.currentSortDir === 'desc') modifier = -1;
+          if (this.currentSortDir === "desc") modifier = -1;
           if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
           if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
           return 0;
@@ -453,7 +607,7 @@ export default {
           let start = (this.currentPage - 1) * this.pageSize;
           let end = this.currentPage * this.pageSize;
           if (index >= start && index < end) return true;
-        })
+        });
     }
   }
 };
@@ -480,13 +634,17 @@ export default {
   white-space: nowrap;
 }
 .capsule-btn {
-    border-radius: 20px;
-    background-color: coral;
-    color: white;
-    border: 1px solid coral;
-    padding: 5px;
-    font-size: inherit;
-    min-width: 70px;
+  border-radius: 20px;
+  background-color: coral;
+  color: white;
+  border: 1px solid coral;
+  padding: 5px;
+  font-size: inherit;
+  min-width: 70px;
+}
+.error-message {
+  color: red;
+  font-size: smaller;
 }
 </style>
 

@@ -8,9 +8,11 @@
             <input
               class="form-control form-control-sm"
               type="date"
+              v-model="searchDate"
               name="ODStartDate"
               id="ODStartDate"
               onkeydown="return false"
+              @change="searchByDate(searchDate)"
             >
           </div>
 
@@ -21,12 +23,13 @@
               type="text"
               name="ODSearch"
               id="ODSearch"
+              v-model="searchCategory"
               placeholder="Category"
             >
           </div>
 
           <div class="form-group margin-l-20 search-btn">
-            <button type="button" class="btn btn-danger capsule-btn">Search</button>
+            <button type="button" @click="searchByCategory(searchCategory)" class="btn btn-danger capsule-btn">Search</button>
           </div>
         </div>
       </div>
@@ -81,7 +84,9 @@ export default {
       pageSize: 3,
       currentPage: 1,
       oData: [],
-      filteredData: []
+      filteredData: [],
+      searchDate: '',
+      searchCategory: '',
     };
   },
   created() {
@@ -101,11 +106,23 @@ export default {
     },
     previousPage: function() {
       if (this.currentPage > 1) this.currentPage--;
+    },
+    searchByDate(param) {
+      param = param.split("-");
+      let _filteredDate = param[2] + "/" + param[1] + "/" + param[0];
+      this.opRecords = this._.filter(this.opRecords, {
+        date: _filteredDate
+      });
+    },
+    searchByCategory(source) {
+      source = source.toLowerCase();
+      this.opRecords = this._.filter(this.opRecords, { category: source });
     }
   },
   computed: {
     dataToShow: function() {
-      return this.opRecords.slice()
+      return this.opRecords
+        .slice()
         .sort((a, b) => {
           let modifier = 1;
           if (this.currentSortDir === "desc") modifier = -1;
