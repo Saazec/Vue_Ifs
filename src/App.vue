@@ -40,9 +40,9 @@
       
       
       <!-- <router-outlet></router-outlet> -->
-
+       <transition name="slide-fade">
       <router-view @isAuthenticated="status => loggedInStatus = status" />
-
+       </transition>
 
       <!-- <login-form *ngIf="!loggedInStatus"></login-form>
       <dashboard *ngIf="loggedInStatus"></dashboard> -->
@@ -86,6 +86,29 @@ export default {
 }
 body {
   font-size: small;
+}
+/* .fade-enter-active,
+.fade-leave-active {
+  transition-duration: 0.9s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+  opacity: 0
+} */
+
+.slide-fade-enter-active {
+  transition: all .3s ease-in-out;
+}
+.slide-fade-leave-active {
+  /* transition: all .8s cubic-bezier(1.0, 1.0, 0.8, 1.0); */
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transform: translateX(-500px);
+  opacity: 0;
 }
 .custom-footer {
   position: fixed;

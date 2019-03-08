@@ -1,63 +1,66 @@
 <template>
-    <div>
-        <h4>
-  Enterprise Search
-</h4>
-<hr>
-<nav>
-  <div class="nav"
-       id="nav-tab"
-       role="tablist">
-    <a class="cursor-pointer"
-       id="nav-ifs-tab"
-       data-toggle="tab"
-       role="tab"
-       v-bind:class="{'active-tab': currentView == 'ifs', 'non-active-tab': currentView != 'ifs'}"
-       @click="currentView = 'ifs'"
-       aria-controls="nav-ifs"
-       aria-selected="true"><h6>IFS Data</h6></a>
-    <a class="cursor-pointer"
-       id="nav-operational-tab"
-       data-toggle="tab"
-       role="tab"
-       v-bind:class="{'active-tab': currentView == 'opr', 'non-active-tab': currentView != 'opr'}"
-       @click="currentView = 'opr'"
-       aria-controls="nav-operational"
-       aria-selected="false"><h6>Operational Data</h6></a>
-  </div>
-</nav>
+  <div>
+    <h4>Enterprise Search</h4>
+    <hr>
+    <nav>
+      <div class="nav" id="nav-tab" role="tablist">
+        <a
+          class="cursor-pointer"
+          id="nav-ifs-tab"
+          data-toggle="tab"
+          role="tab"
+          v-bind:class="{'active-tab': currentView == 'ifs', 'non-active-tab': currentView != 'ifs'}"
+          @click="currentView = 'ifs'"
+          aria-controls="nav-ifs"
+          aria-selected="true"
+        >
+          <h6>IFS Data</h6>
+        </a>
+        <a
+          class="cursor-pointer"
+          id="nav-operational-tab"
+          data-toggle="tab"
+          role="tab"
+          v-bind:class="{'active-tab': currentView == 'opr', 'non-active-tab': currentView != 'opr'}"
+          @click="currentView = 'opr'"
+          aria-controls="nav-operational"
+          aria-selected="false"
+        >
+          <h6>Operational Data</h6>
+        </a>
+      </div>
+    </nav>
 
-<!-- <div *ngIf="currentTemplate">
+    <!-- <div *ngIf="currentTemplate">
   <ifs-data></ifs-data>
 </div>
 <div *ngIf="!currentTemplate">
   <operational-data></operational-data>
-</div> -->
+    </div>-->
+    <router-view/>
+    <transition name="slide-fade">
+    <Ifs v-if="currentView == 'ifs'"/>
 
-<router-view />
-
-<Ifs v-if="currentView == 'ifs'" />
-
-<Operational v-if="currentView == 'opr'" />
-    </div>
+    <Operational v-if="currentView == 'opr'"/>
+    </transition>
+  </div>
 </template>
 
 <script>
-import Ifs from './Ifs.vue'
-import Operational from './Operational.vue';
+import Ifs from "./Ifs.vue";
+import Operational from "./Operational.vue";
 
 export default {
-    name: 'Dashboard',
-    props: {},
-    data() {
-      return {
-        currentView: 'ifs',
-      }
-    },
-    created() {
-    },
-    components: { Ifs, Operational }
-}
+  name: "Dashboard",
+  props: {},
+  data() {
+    return {
+      currentView: "ifs"
+    };
+  },
+  created() {},
+  components: { Ifs, Operational }
+};
 </script>
 
 <style>
@@ -68,14 +71,25 @@ export default {
   cursor: pointer;
 }
 .active-tab {
-    border-bottom: 2px solid coral;
-    margin: 5px;
-    padding: 0px;
+  border-bottom: 2px solid coral;
+  margin: 5px;
+  padding: 0px;
 }
 .non-active-tab {
   border-bottom: 2px solid white;
   margin: 5px;
   padding: 0px;
+}
+.slide-fade-enter-active {
+  transition: all .3s ease-in-out;
+}
+.slide-fade-leave-active {
+  /* transition: all .8s cubic-bezier(1.0, 1.0, 0.8, 1.0); */
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transform: translateX(-500px);
+  opacity: 0;
 }
 </style>
 

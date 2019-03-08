@@ -392,6 +392,7 @@
       </div>
     </div>
     <form name="editForm">
+      <transition name="fade">
       <table class="table table-sm">
         <tr>
           <th>Edit/Save</th>
@@ -470,6 +471,7 @@
           </td>
         </tr>
       </table>
+      </transition>
     </form>
   </div>
 </template>
@@ -645,6 +647,12 @@ export default {
 .error-message {
   color: red;
   font-size: smaller;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
 
