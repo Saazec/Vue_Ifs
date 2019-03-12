@@ -99,21 +99,29 @@ export default {
     handleSubmit() {
       this.submitted = true;
       this.$validator.validate().then(() => {
-        this.authenticate(this.user.username, this.user.password, this.user.role);
+        this.authenticate(
+          this.user.username,
+          this.user.password,
+          this.user.role
+        );
       });
     },
     authenticate: function(username, password, role) {
       if (username == "jhon" && password == "snow" && role == "user") {
-        this.$toasted.success("Logged In", {
-          action: {
-            text: "X",
-            onClick: (e, toastObject) => {
-              toastObject.goAway(0);
-            }
-          }
-        });
-        this.$emit('isAuthenticated', { status: true });
-        this.$router.push({ name: "Dashboard" });
+        this.$store
+          .dispatch("getUserData", { name: username, password: password })
+          .then(() => {
+            this.$toasted.success("Logged In", {
+              action: {
+                text: "X",
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0);
+                }
+              }
+            });
+            this.$emit("isAuthenticated", { status: true });
+            this.$router.push({ name: "Dashboard" });
+          });
       }
     }
   }

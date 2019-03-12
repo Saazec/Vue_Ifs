@@ -7,6 +7,7 @@ import Toasted from 'vue-toasted';
 import VeeValidate from 'vee-validate';
 import VueLodash from 'vue-lodash'
 import router from './router';
+import store from './store';
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faCoffee, faPencilAlt, faSave } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -29,4 +30,5 @@ Vue.use(BootstrapVue);
 new Vue({
   render: h => h(App),
   router,
+  store
 }).$mount('#app')

@@ -90,7 +90,10 @@ export default {
     };
   },
   created() {
-    this.opRecords = this.operational.data;
+    this.$store.dispatch('getOperationalData')
+      .then(() => {
+        this.opRecords = this.$store.getters.opData;
+      })
   },
   methods: {
     sort: function(s) {

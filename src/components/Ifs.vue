@@ -393,84 +393,88 @@
     </div>
     <form name="editForm">
       <transition name="fade">
-      <table class="table table-sm">
-        <tr>
-          <th>Edit/Save</th>
-          <th class="no-wrap">Case Number</th>
-          <th>Feedback Type</th>
-          <th>Source</th>
-          <th>Division</th>
-          <th>Reported Date</th>
-          <th>Created On</th>
-          <th>Engine Score</th>
-          <th>Last Saved User</th>
-        </tr>
-        <tr v-for="(record, index) in dataToShow" :key="index">
-          <td style="white-space:nowrap;">
-            <font-awesome-icon icon="pencil-alt" class="cursor-pointer" @click="enableEdit(index)"/>
-            <font-awesome-icon
-              style="margin-left: 6px;"
-              icon="save"
-              v-bind:class="{'save-disabled': index != selectedRow, 'save-enabled': index == selectedRow}"
-              @click="saveData(record)"
-            />
-            <!-- <i class="fa fa-pencil fa-fw cursor-pointer" aria-hidden="true"></i>
-            <i class="fa fa-save fa-fw cursor-pointer" aria-hidden="true"></i>-->
-          </td>
-          <td>{{ record.caseNumber }}</td>
-          <td>
-            <input
-              :class="{'input-disabled': index != selectedRow}"
-              type="text"
-              name="item.caseNumber+'feedbackType'"
-              v-model="record.feedbackType"
-            >
-          </td>
+        <table class="table table-sm" v-if="dataToShow">
+          <tr>
+            <th>Edit/Save</th>
+            <th class="no-wrap">Case Number</th>
+            <th>Feedback Type</th>
+            <th>Source</th>
+            <th>Division</th>
+            <th>Reported Date</th>
+            <th>Created On</th>
+            <th>Engine Score</th>
+            <th>Last Saved User</th>
+          </tr>
+          <tr v-for="(record, index) in dataToShow" :key="index">
+            <td style="white-space:nowrap;">
+              <font-awesome-icon
+                icon="pencil-alt"
+                class="cursor-pointer"
+                @click="enableEdit(index)"
+              />
+              <font-awesome-icon
+                style="margin-left: 6px;"
+                icon="save"
+                v-bind:class="{'save-disabled': index != selectedRow, 'save-enabled': index == selectedRow}"
+                @click="saveData(record)"
+              />
+              <!-- <i class="fa fa-pencil fa-fw cursor-pointer" aria-hidden="true"></i>
+              <i class="fa fa-save fa-fw cursor-pointer" aria-hidden="true"></i>-->
+            </td>
+            <td>{{ record.caseNumber }}</td>
+            <td>
+              <input
+                :class="{'input-disabled': index != selectedRow}"
+                type="text"
+                name="item.caseNumber+'feedbackType'"
+                v-model="record.feedbackType"
+              >
+            </td>
 
-          <td>
-            <input
-              :class="{'input-disabled': index != selectedRow}"
-              type="text"
-              v-model="record.source"
-            >
-          </td>
-          <td>
-            <input
-              :class="{'input-disabled': index != selectedRow}"
-              type="text"
-              v-model="record.division"
-            >
-          </td>
-          <td>
-            <input
-              :class="{'input-disabled': index != selectedRow}"
-              type="text"
-              v-model="record.reportedDate"
-            >
-          </td>
-          <td>
-            <input
-              :class="{'input-disabled': index != selectedRow}"
-              type="text"
-              v-model="record.createdOn"
-            >
-          </td>
-          <td>
-            <input
-              :class="{'input-disabled': index != selectedRow}"
-              type="text"
-              v-model="record.engineScore"
-            >
-          </td>
-          <td>
-            <input
-              :class="{'input-disabled': index != selectedRow}"
-              type="text"
-              v-model="record.lastSaved"
-            >
-          </td>
-        </tr>
-      </table>
+            <td>
+              <input
+                :class="{'input-disabled': index != selectedRow}"
+                type="text"
+                v-model="record.source"
+              >
+            </td>
+            <td>
+              <input
+                :class="{'input-disabled': index != selectedRow}"
+                type="text"
+                v-model="record.division"
+              >
+            </td>
+            <td>
+              <input
+                :class="{'input-disabled': index != selectedRow}"
+                type="text"
+                v-model="record.reportedDate"
+              >
+            </td>
+            <td>
+              <input
+                :class="{'input-disabled': index != selectedRow}"
+                type="text"
+                v-model="record.createdOn"
+              >
+            </td>
+            <td>
+              <input
+                :class="{'input-disabled': index != selectedRow}"
+                type="text"
+                v-model="record.engineScore"
+              >
+            </td>
+            <td>
+              <input
+                :class="{'input-disabled': index != selectedRow}"
+                type="text"
+                v-model="record.lastSaved"
+              >
+            </td>
+          </tr>
+        </table>
       </transition>
     </form>
   </div>
@@ -509,29 +513,46 @@ export default {
     };
   },
   created() {
-    this.ifsRecords = this.ifsData.data;
+    this.$store.dispatch("getIfsData").then(() => {
+      this.ifsRecords = this.$store.state.ifsData;
+    });
+    // this.ifsRecords = this.ifsData.data;
   },
   methods: {
     handleSubmit() {
       this.submitted = true;
       this.$validator.validate().then(valid => {
         if (valid) {
-          if (
-            this._.findIndex(this.ifsRecords, {
-              caseNumber: this.ifsForm.caseNumber
-            }) > -1
-          ) {
-            this.ifsRecords.push(this.ifsForm);
-            this.$toasted.success("Record Inserted", {
-              action: {
-                text: "X",
-                onClick: (e, toastObject) => {
-                  toastObject.goAway(0);
+          const indexAt = this._.findIndex(this.ifsRecords, { caseNumber: this.ifsForm.caseNumber});
+          if (indexAt == -1) {
+              let _date = this.ifsForm.reportedDate.split('-');
+              let formattedDate = _date[2] + '/' + _date[1] + '/' + _date[0];
+            const dataToAdd = {
+              caseNumber: this.ifsForm.caseNumber,
+              source: this.ifsForm.source,
+              feedbackType: this.ifsForm.feedbackType,
+              division: this.ifsForm.division,
+              reportedDate: formattedDate,
+              createdOn: this.ifsForm.createdOn,
+              engineScore: 'EOS',
+              lastSaved: 'Jhon Whik'
+            };
+            this.$store.dispatch("addNewIfsRecord", dataToAdd).then(() => {
+              // this.ifsRecords.push(this.ifsForm);
+              this.$toasted.success("Record Inserted", {
+                action: {
+                  text: "X",
+                  onClick: (e, toastObject) => {
+                    toastObject.goAway(0);
+                  }
                 }
-              }
-            });
+              });
+            })
+            .catch(err => {
+              this.$toasted.show('Error Occured' + err);
+            })
           } else {
-            this.$toasted.show("Record Already Exists", {
+            this.$toasted.show("Case Number Already Exists", {
               action: {
                 text: "X",
                 onClick: (e, toastObject) => {
@@ -565,46 +586,55 @@ export default {
         caseNumber: formData.caseNumber
       });
       if (_index > -1) {
-        this._.assign(this.ifsRecords[_index], formData);
-        this.selectedRow = null;
+        // this._.assign(this.ifsRecords[_index], formData);
+        this.$store.dispatch('updateRecord', formData)
+          .then(() => {
+            this.selectedRow = null;
         this.$toasted.success("Record updated successfully", {});
+          })
+          .catch(err => {
+            this.$toasted.show('Err occured' + err);
+          })
       }
     },
     searchByDate(param) {
+      this.currentPage = 1;
       param = param.split("-");
       let _filteredDate = param[2] + "/" + param[1] + "/" + param[0];
-      this.ifsRecords = this._.filter(this.ifsRecords, {
+      this.ifsRecords = this._.filter(this.$store.state.ifsData, {
         reportedDate: _filteredDate
       });
     },
     searchBySource(source) {
+      this.currentPage = 1;
       source = source.toLowerCase();
-      this.ifsRecords = this._.filter(this.ifsRecords, { source: source });
+      this.ifsRecords = this._.filter(this.$store.state.ifsData, { source: source });
     },
     validateDate() {
       if (this.ifsForm.createdOn && this.ifsForm.reportedDate) {
         this.errorInDate = false;
-        let createdDate = this.ifsForm.createdOn.split('-');
-        let reportedDate = this.ifsForm.reportedDate.split('-');
+        let createdDate = this.ifsForm.createdOn.split("-");
+        let reportedDate = this.ifsForm.reportedDate.split("-");
         if (+createdDate[0] > +reportedDate[0]) this.errorInDate = true;
         if (+createdDate[1] > +reportedDate[1]) this.errorInDate = true;
         if (+createdDate[2] >= +reportedDate[2]) this.errorInDate = true;
       } else {
         this.errorInDate = false;
       }
-    }, 
+    }
   },
   computed: {
     dataToShow: function() {
+      // this.ifsRecords = this.$store.state.ifsData;
       return this.ifsRecords
         .slice()
-        .sort((a, b) => {
-          let modifier = 1;
-          if (this.currentSortDir === "desc") modifier = -1;
-          if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-          if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
-          return 0;
-        })
+        // .sort((a, b) => {
+        //   let modifier = 1;
+        //   if (this.currentSortDir === "desc") modifier = -1;
+        //   if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+        //   if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+        //   return 0;
+        // })
         .filter((row, index) => {
           let start = (this.currentPage - 1) * this.pageSize;
           let end = this.currentPage * this.pageSize;
@@ -648,8 +678,9 @@ export default {
   color: red;
   font-size: smaller;
 }
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
